@@ -1,0 +1,364 @@
+diff --git a/Cargo.lock b/Cargo.lock
+index abbd8b1..2947e86 100644
+--- a/Cargo.lock
++++ b/Cargo.lock
+@@ -1365,8 +1365,6 @@ dependencies = [
+ [[package]]
+ name = "jktcp"
+ version = "0.1.6"
+-source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "54408d8a86952b9f1cc009782ad7bbb4007a7caaba0599db441e0eae8785288c"
+ dependencies = [
+  "futures",
+  "getrandom 0.3.4",
+diff --git a/Cargo.toml b/Cargo.toml
+index c2e80fb..80fd391 100644
+--- a/Cargo.toml
++++ b/Cargo.toml
+@@ -3,6 +3,16 @@
+ resolver = "2"
+ members = ["ffi", "idevice", "tests", "tools"]
+ 
++# Silo patch: jktcp 0.1.6 as published always advertises a ~16.7 MB receive
++# window and drops out-of-order data with zero ACK feedback (no SACK). One
++# lost packet then discards everything the peer already sent above it and
++# gives the peer's TCP stack no signal to retransmit early — this was the
++# root cause behind the multi-minute silent stalls seen in real backups. See
++# ../jktcp-patched/src/adapter.rs for the fix (bounded window + re-ACK on
++# out-of-order arrival).
++[patch.crates-io]
++jktcp = { path = "../jktcp-patched" }
++
+ [profile.release]
+ opt-level = "z"
+ codegen-units = 1
+diff --git a/ffi/src/afc.rs b/ffi/src/afc.rs
+index fc5330b..454adf2 100644
+--- a/ffi/src/afc.rs
++++ b/ffi/src/afc.rs
+@@ -613,6 +613,61 @@ pub unsafe extern "C" fn afc_file_open(
+     }
+ }
+ 
++/// `flock(2)` operation codes accepted by `afc_file_lock`, matching the
++/// values AFC itself uses.
++pub const AFC_LOCK_SHARED: u64 = 5;
++pub const AFC_LOCK_EXCLUSIVE: u64 = 6;
++pub const AFC_LOCK_UNLOCK: u64 = 12;
++
++/// Applies an flock(2)-style lock to an open file
++///
++/// Exists for the iTunes sync lock (`/com.apple.itunes.lock_sync`): holding
++/// it for the duration of a backup tells the device a sync is in progress,
++/// which is what the reference `idevicebackup2` implementation does and
++/// what keeps the device from interleaving its own sync work.
++///
++/// `op` is a plain integer rather than an enum on purpose. cbindgen renders
++/// a `#[repr(u64)]` enum as a C enum plus a same-named `uint64_t` typedef,
++/// and Swift imports the *enum* — whose raw value is 32 bits wide. The
++/// resulting 32-bit argument left the upper half of the register
++/// undefined, so matching it as a `#[repr(u64)]` discriminant was
++/// undefined behaviour and crashed on the first call. Taking a `u64` and
++/// validating it keeps the ABI unambiguous and an unknown value an error
++/// rather than UB.
++///
++/// # Arguments
++/// * [`handle`] - A valid file handle from `afc_file_open`
++/// * [`op`] - One of `AFC_LOCK_SHARED`, `AFC_LOCK_EXCLUSIVE`, `AFC_LOCK_UNLOCK`
++///
++/// # Returns
++/// An IdeviceFfiError on error, null on success
++///
++/// # Safety
++/// `handle` must be a valid pointer to a handle allocated by this library
++#[unsafe(no_mangle)]
++pub unsafe extern "C" fn afc_file_lock(
++    handle: *mut AfcFileHandle,
++    op: u64,
++) -> *mut IdeviceFfiError {
++    if handle.is_null() {
++        return ffi_err!(IdeviceError::FfiInvalidArg);
++    }
++    let op = match op {
++        AFC_LOCK_SHARED => idevice::afc::opcode::AfcLockOp::SharedLock,
++        AFC_LOCK_EXCLUSIVE => idevice::afc::opcode::AfcLockOp::ExclusiveLock,
++        AFC_LOCK_UNLOCK => idevice::afc::opcode::AfcLockOp::Unlock,
++        _ => return ffi_err!(IdeviceError::FfiInvalidArg),
++    };
++    let res = LOCAL_RUNTIME.block_on(async move {
++        let file = unsafe { &mut (*handle).0 };
++        file.lock(op).await
++    });
++    match res {
++        Ok(_) => null_mut(),
++        Err(e) => ffi_err!(e),
++    }
++}
++
+ /// Closes a file handle
+ ///
+ /// # Arguments
+diff --git a/ffi/src/mobilebackup2.rs b/ffi/src/mobilebackup2.rs
+index fc57320..8c25cb8 100644
+--- a/ffi/src/mobilebackup2.rs
++++ b/ffi/src/mobilebackup2.rs
+@@ -21,6 +21,23 @@ use idevice::RsdService as _;
+ 
+ pub struct MobileBackup2ClientHandle(pub MobileBackup2Client);
+ 
++/// C-compatible representation of one entry from `list_dir`.
++///
++/// `name` must be allocated with `malloc`/`strdup` (not Swift's own
++/// allocator) — this crate's default allocator is the system libc allocator
++/// on Darwin, so freeing it here with `libc::free` is valid for memory
++/// obtained that way, matching the convention already used for
++/// `IdeviceFfiError` elsewhere in this codebase.
++#[repr(C)]
++pub struct CDirEntry {
++    pub name: *mut c_char,
++    pub is_dir: bool,
++    pub is_file: bool,
++    pub size: u64,
++    pub has_modified: bool,
++    pub modified_unix_secs: i64,
++}
++
+ // ---------------------------------------------------------------------------
+ // C function-pointer table that mirrors BackupDelegate
+ // ---------------------------------------------------------------------------
+@@ -79,6 +96,23 @@ pub struct Mobilebackup2BackupDelegateFFI {
+ 
+     pub is_dir: extern "C" fn(path: *const c_char, context: *mut c_void) -> bool,
+ 
++    /// Lists the entries directly inside `path`. `mobilebackup2` calls this
++    /// when the device asks what an existing backup already contains
++    /// (`DLContentsOfDirectory`) — needed so a device that already has a
++    /// completed backup on the server can skip re-sending files it
++    /// recognizes as already present, instead of restarting from zero after
++    /// any interruption. On success sets `*out_entries` to a
++    /// `malloc`-allocated array of `count` `CDirEntry`s (each `name`
++    /// `strdup`-allocated) and `*out_count` to `count`; this crate takes
++    /// ownership and frees both with `libc::free`. An empty directory is
++    /// `*out_count = 0` with `*out_entries` left NULL, not an error.
++    pub list_dir: extern "C" fn(
++        path: *const c_char,
++        out_entries: *mut *mut CDirEntry,
++        out_count: *mut usize,
++        context: *mut c_void,
++    ) -> *mut IdeviceFfiError,
++
+     /// Optional cancellation callback. May be NULL.
+     pub is_cancelled: Option<extern "C" fn(context: *mut c_void) -> bool>,
+ 
+@@ -329,28 +363,52 @@ impl BackupDelegate for Mobilebackup2BackupDelegateFFI {
+         &'a self,
+         path: &'a Path,
+     ) -> Pin<Box<dyn Future<Output = Result<Vec<DirEntryInfo>, IdeviceError>> + Send + 'a>> {
+-        // The MobileBackup2 layer formats these entries into the DLContentsOfDirectory response
+-        // If one of the entry has a metadata error (transient or not), the listing will return
+-        // Err, except for the modified one.
++        // Silo patch: this used to be `std::fs::read_dir(path)` — a real
++        // local filesystem read. On this crate's actual deployment (an iOS
++        // app whose backup storage is a remote server, not a local
++        // directory), that path never exists on-device, so this always
++        // returned empty/errored regardless of what the server actually
++        // held, and the device never recognized any file as already backed
++        // up. Route through the FFI delegate's `list_dir` callback instead,
++        // same as every other storage operation here.
+         Box::pin(async move {
+             if is_cancelled(self) {
+                 return Err(cancelled_error());
+             }
+-            let entries =
+-                std::fs::read_dir(path).map_err(|e| IdeviceError::InternalError(e.to_string()))?;
+-            let mut out = Vec::new();
+-            for entry in entries {
+-                let entry = entry.map_err(|e| IdeviceError::InternalError(e.to_string()))?;
+-                let metadata = entry
+-                    .metadata()
+-                    .map_err(|e| IdeviceError::InternalError(e.to_string()))?;
+-                out.push(DirEntryInfo {
+-                    name: entry.file_name().to_string_lossy().into_owned(),
+-                    is_dir: metadata.is_dir(),
+-                    is_file: metadata.is_file(),
+-                    size: metadata.len(),
+-                    modified: metadata.modified().ok(),
+-                });
++            let c = path_to_cstring(path);
++            let mut entries_ptr: *mut CDirEntry = null_mut();
++            let mut count: usize = 0;
++            let err = (self.list_dir)(c.as_ptr(), &mut entries_ptr, &mut count, self.context);
++            if !err.is_null() {
++                return Err(ffi_err_to_idevice(err));
++            }
++            let mut out = Vec::with_capacity(count);
++            if !entries_ptr.is_null() && count > 0 {
++                let slice = unsafe { std::slice::from_raw_parts(entries_ptr, count) };
++                for entry in slice {
++                    let name = if entry.name.is_null() {
++                        String::new()
++                    } else {
++                        unsafe { CStr::from_ptr(entry.name) }
++                            .to_string_lossy()
++                            .into_owned()
++                    };
++                    let modified = entry.has_modified.then(|| {
++                        std::time::UNIX_EPOCH
++                            + std::time::Duration::from_secs(entry.modified_unix_secs.max(0) as u64)
++                    });
++                    out.push(DirEntryInfo {
++                        name,
++                        is_dir: entry.is_dir,
++                        is_file: entry.is_file,
++                        size: entry.size,
++                        modified,
++                    });
++                    if !entry.name.is_null() {
++                        unsafe { libc::free(entry.name as *mut c_void) };
++                    }
++                }
++                unsafe { libc::free(entries_ptr as *mut c_void) };
+             }
+             Ok(out)
+         })
+@@ -470,6 +528,33 @@ pub unsafe extern "C" fn mobilebackup2_client_free(handle: *mut MobileBackup2Cli
+     }
+ }
+ 
++/// Sets the UDID mobilebackup2 reports as the backup target/source
++/// identifier.
++///
++/// Connections made via `mobilebackup2_connect_rsd` never populate this
++/// (only the classic lockdownd `mobilebackup2_connect` path fetches
++/// `UniqueDeviceID` and sets it automatically) — without it,
++/// `mobilebackup2_backup`'s request reaches the device with a null target
++/// identifier, and on-device `BackupAgent2` asserts
++/// ("Backup target device ID (null) doesn't match actual ...") and tears
++/// down the connection. Call this with the device's real UDID (e.g. from
++/// `rsd_get_uuid`) right after `mobilebackup2_connect_rsd` succeeds.
++///
++/// # Safety
++/// `client` and `udid` must be valid, non-null pointers.
++#[unsafe(no_mangle)]
++pub unsafe extern "C" fn mobilebackup2_set_udid(
++    client: *mut MobileBackup2ClientHandle,
++    udid: *const c_char,
++) -> *mut IdeviceFfiError {
++    if client.is_null() || udid.is_null() {
++        return ffi_err!(IdeviceError::FfiInvalidArg);
++    }
++    let udid = unsafe { CStr::from_ptr(udid) }.to_string_lossy().to_string();
++    unsafe { &mut *client }.0.idevice.set_udid(udid);
++    null_mut()
++}
++
+ /// Creates a backup of the device
+ ///
+ /// # Arguments
+diff --git a/ffi/src/rsd.rs b/ffi/src/rsd.rs
+index 20377cf..5aba0cc 100644
+--- a/ffi/src/rsd.rs
++++ b/ffi/src/rsd.rs
+@@ -140,6 +140,50 @@ pub unsafe extern "C" fn rsd_get_uuid(
+     }
+ }
+ 
++/// Gets the classic UDID from the RSD handshake's `Properties` dictionary.
++///
++/// This is **not** the same value as `rsd_get_uuid` — that returns the
++/// RSD/ECID-style identifier (`Properties["UUID"]` at the handshake root),
++/// which on modern devices is formatted like a UUID but is a different
++/// value from the device's real UDID. Services that check the UDID against
++/// their own idea of the device's identity (e.g. mobilebackup2, via
++/// `mobilebackup2_set_udid`) need this one instead.
++///
++/// # Arguments
++/// * [`handle`] - A valid RsdHandshake handle
++/// * [`udid`] - Pointer to store the UDID string (caller must free with rsd_free_string)
++///
++/// # Returns
++/// An IdeviceFfiError on error, null on success
++///
++/// # Safety
++/// `handle` must be a valid pointer to a handle allocated by this library
++/// `udid` must be a valid pointer to store the string pointer
++#[unsafe(no_mangle)]
++pub unsafe extern "C" fn rsd_get_unique_device_id(
++    handle: *mut RsdHandshakeHandle,
++    udid: *mut *mut libc::c_char,
++) -> *mut IdeviceFfiError {
++    if handle.is_null() || udid.is_null() {
++        return ffi_err!(IdeviceError::FfiInvalidArg);
++    }
++
++    let props = &unsafe { &*handle }.0.properties;
++    let udid_str = match props.get("UniqueDeviceID").and_then(|v| v.as_string()) {
++        Some(u) => u,
++        None => return ffi_err!(IdeviceError::UnexpectedResponse(
++            "no UniqueDeviceID in RSD Properties".to_string()
++        )),
++    };
++    match CString::new(udid_str) {
++        Ok(c_str) => {
++            unsafe { *udid = c_str.into_raw() };
++            null_mut()
++        }
++        Err(_) => ffi_err!(IdeviceError::FfiInvalidString),
++    }
++}
++
+ /// Gets all available services from the RSD handshake
+ ///
+ /// # Arguments
+diff --git a/idevice/src/services/mobilebackup2.rs b/idevice/src/services/mobilebackup2.rs
+index 8920bef..d54594a 100644
+--- a/idevice/src/services/mobilebackup2.rs
++++ b/idevice/src/services/mobilebackup2.rs
+@@ -20,6 +20,12 @@ pub const DL_CODE_ERROR_LOCAL: u8 = 0x06;
+ pub const DL_CODE_ERROR_REMOTE: u8 = 0x0b;
+ pub const DL_CODE_FILE_DATA: u8 = 0x0c;
+ 
++/// How long to wait for the device to open the DeviceLink conversation
++/// before giving up. Generous enough to cover a user walking over to the
++/// device and answering its trust prompt, short enough that a session the
++/// device is never going to serve fails while the user is still watching.
++const DL_VERSION_EXCHANGE_TIMEOUT: std::time::Duration = std::time::Duration::from_secs(90);
++
+ /// Metadata for a single directory entry returned by [`BackupDelegate::list_dir`].
+ #[derive(Debug)]
+ pub struct DirEntryInfo {
+@@ -545,8 +551,32 @@ impl MobileBackup2Client {
+     /// 3) Receive ["DLMessageDeviceReady"]
+     async fn dl_version_exchange(&mut self) -> Result<(), IdeviceError> {
+         debug!("Starting DeviceLink version exchange");
+-        // 1) Receive DLMessageVersionExchange
+-        let (msg, _arr) = self.receive_dl_message().await?;
++        // 1) Receive DLMessageVersionExchange.
++        //
++        // The device speaks first here, and if BackupAgent2 never gets
++        // going on its side (it is still waiting on the user's trust
++        // prompt, or another backup session is still holding it) it simply
++        // never sends anything at all. Without a bound this read blocks for
++        // as long as the transport survives — observed sitting silent for
++        // seven minutes — which is indistinguishable from a hung client.
++        // Fail with something the caller can act on instead.
++        let (msg, _arr) = match tokio::time::timeout(
++            DL_VERSION_EXCHANGE_TIMEOUT,
++            self.receive_dl_message(),
++        )
++        .await
++        {
++            Ok(result) => result?,
++            Err(_) => {
++                warn!("Device never sent DLMessageVersionExchange");
++                return Err(IdeviceError::UnexpectedResponse(
++                    "device did not start its side of the backup session: no \
++                     DLMessageVersionExchange arrived. Confirm the trust prompt on the \
++                     device, and make sure no other backup session is still open."
++                        .into(),
++                ));
++            }
++        };
+         if msg != "DLMessageVersionExchange" {
+             warn!("Expected DLMessageVersionExchange, got {msg}");
+             return Err(IdeviceError::UnexpectedResponse(

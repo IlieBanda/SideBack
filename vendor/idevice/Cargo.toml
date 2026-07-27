@@ -1,0 +1,20 @@
+[workspace]
+
+resolver = "2"
+members = ["ffi", "idevice", "tests", "tools"]
+
+# Silo patch: jktcp 0.1.6 as published always advertises a ~16.7 MB receive
+# window and drops out-of-order data with zero ACK feedback (no SACK). One
+# lost packet then discards everything the peer already sent above it and
+# gives the peer's TCP stack no signal to retransmit early — this was the
+# root cause behind the multi-minute silent stalls seen in real backups. See
+# ../jktcp-patched/src/adapter.rs for the fix (bounded window + re-ACK on
+# out-of-order arrival).
+[patch.crates-io]
+jktcp = { path = "../jktcp-patched" }
+
+[profile.release]
+opt-level = "z"
+codegen-units = 1
+lto = true
+panic = "abort"

@@ -1,0 +1,27 @@
+[package]
+name = "silod"
+version = "0.1.0"
+edition = "2021"
+description = "Self-hosted backup destination daemon for Silo"
+
+[dependencies]
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "net", "io-util", "fs", "signal"] }
+# `ring` rather than the default aws-lc-rs: no cmake/nasm in the build path,
+# so this stays a plain `cargo build` on a bare Linux server.
+rustls = { version = "0.23", default-features = false, features = ["std", "ring", "tls12", "logging"] }
+tokio-rustls = { version = "0.26", default-features = false, features = ["ring", "tls12", "logging"] }
+rcgen = "0.13"
+serde = { version = "1", features = ["derive"] }
+bincode = "1.3"
+# SHA-256 rather than BLAKE3: the iOS client gets it from CryptoKit with
+# hardware acceleration, so neither side needs a third-party crypto port.
+sha2 = "0.10"
+clap = { version = "4", features = ["derive"] }
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+anyhow = "1"
+thiserror = "2"
+subtle = "2"
+
+[profile.release]
+opt-level = 3

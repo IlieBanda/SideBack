@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 200 200">
+  <!-- Silo — iOS app icon master.
+       Geometry matches "Silo App Icon.dc.html" (variant 7, server-bar stack).
+       Square full-bleed on purpose: iOS applies the squircle mask itself. -->
+  <defs>
+    <filter id="barShadow" x="-50%" y="-50%" width="200%" height="200%">
+      <feDropShadow dx="0" dy="3" stdDeviation="2.4" flood-color="#000000" flood-opacity="0.4"/>
+    </filter>
+  </defs>
+
+  <!-- warm graphite ground -->
+  <rect width="200" height="200" fill="#3D3527"/>
+
+  <g transform="rotate(-14 100 100)">
+    <rect x="45" y="40"  width="109" height="34" rx="10" fill="#F3EEE3" filter="url(#barShadow)" opacity="0.5"/>
+    <rect x="45" y="83"  width="109" height="34" rx="10" fill="#F3EEE3" filter="url(#barShadow)" opacity="0.75"/>
+    <rect x="45" y="126" width="109" height="34" rx="10" fill="#F3EEE3" filter="url(#barShadow)"/>
+    <!-- terracotta accent: the only colour element -->
+    <circle cx="134" cy="143" r="8" fill="#D97757"/>
+  </g>
+</svg>

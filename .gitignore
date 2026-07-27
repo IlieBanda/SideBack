@@ -1,0 +1,34 @@
+# Xcode
+*.xcodeproj/*
+!*.xcodeproj/project.pbxproj
+!*.xcodeproj/xcshareddata/
+*.xcuserstate
+xcuserdata/
+DerivedData/
+*.moved-aside
+*.hmap
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+# Swift Package Manager
+.swiftpm/
+.build/
+
+# Rust
+target/
+silod/target/
+# Cargo.lock IS committed: silod is a binary, and pinning exact
+# dependency versions matters for a network-facing daemon.
+
+# macOS
+.DS_Store
+
+# Secrets — never commit these
+*.pem
+*.key
+*.p12
+*.mobileprovision
+secrets.json
+Silo/build/
+silod/target/

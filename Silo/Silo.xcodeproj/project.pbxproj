@@ -1,0 +1,462 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		0B5DB996AFC03CF21611FAD9 /* DeviceTunnel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9CEC046CC75CD014A770B6F8 /* DeviceTunnel.swift */; };
+		1271A814DF24D68C21AB0B26 /* TunnelDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = D85B6A240C735FA81F2C665F /* TunnelDetector.swift */; };
+		12FC1DE94FC7D9B535A18F0F /* BackupDelegateBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = D712DEA7EAEE9B062FB2083D /* BackupDelegateBridge.swift */; };
+		13F9CEFBDACD31C53F8AAD87 /* BackupRunner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FE75F5961B517539ABE3018 /* BackupRunner.swift */; };
+		1937FCF576D63ACA440E1B9B /* DestinationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5997F4E44AA96EAB5F84ED7F /* DestinationView.swift */; };
+		344F443CAAEB824E94072F34 /* StatusView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E26690AEE66974BC0AFA63CA /* StatusView.swift */; };
+		464CCCC7A107AD484CC5FC49 /* SyncLock.swift in Sources */ = {isa = PBXBuildFile; fileRef = B39E01D07FEBA514DB3B06EC /* SyncLock.swift */; };
+		5F5DB5EF90151B2A43D068A7 /* BackupController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18C0F1C6EB5A012C1EB274FF /* BackupController.swift */; };
+		697D546DE191DD2EE61874B0 /* BackgroundKeepAlive.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05BF4E0DD7BA92736426CA23 /* BackgroundKeepAlive.swift */; };
+		793A6C9F67B8BB5BFF96B7F7 /* BackupEncryptionStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = DBDBD56C79344F420D4064E0 /* BackupEncryptionStore.swift */; };
+		7CC5214B566BC8FBAF7FCDBF /* DebugLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97EF122E27802C600141B113 /* DebugLog.swift */; };
+		8920CCA5EA80D1466F7012A2 /* SilodWire.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1528AB45493503E20DAFE53E /* SilodWire.swift */; };
+		9020F168C2E01DB9FCD1DD56 /* SilodClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7944FD049AD6A4758084E72F /* SilodClient.swift */; };
+		A5866162D31D3612912C205E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 19ECDC5C7DF31E93D7CD389A /* Assets.xcassets */; };
+		B1249E0FDE47F961FF26B281 /* AboutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B1BF0E85A26F3921E4FC935 /* AboutView.swift */; };
+		B89DC2E1880C844EF8354140 /* KeychainStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC76A20A1AFCACD9A49A3F59 /* KeychainStore.swift */; };
+		C6DFD55DB4D2333F058E92F7 /* SilodHealthCheck.swift in Sources */ = {isa = PBXBuildFile; fileRef = A92C2DF9EC7F4D7BD4C223D0 /* SilodHealthCheck.swift */; };
+		D9FC96653EA51877C27397C2 /* IDevice.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 22D58C7CDB30E882D13A721C /* IDevice.xcframework */; };
+		DE081549B2596EA6B7AAC138 /* PairingFileStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE976724EF16180B79989E7B /* PairingFileStore.swift */; };
+		E0CD5AC218DAF793D5664D28 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1120E8D105C9D07F53DC2C90 /* ContentView.swift */; };
+		E2A1384DCF82CB1CAE0B18F0 /* BackupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A6637D5D3DD3203EDD74878 /* BackupView.swift */; };
+		EA6F1E7B9D84AFDFF16F88D6 /* BackupPasswordVerifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F8D065B1F5FEB5DE9789A4B /* BackupPasswordVerifier.swift */; };
+		EDE8B2523D75FF122173F874 /* SiloApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = D384C39A7434BF1A1A66B2A4 /* SiloApp.swift */; };
+		F0F26BE66834FADE5753C5E4 /* DestinationStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20FB9C7E4B2A0D5F5EA46AC /* DestinationStore.swift */; };
+		FBDA26D85E3D93CD00358B7F /* BackupDestination.swift in Sources */ = {isa = PBXBuildFile; fileRef = 581AF1A76F2371AD13E42FBA /* BackupDestination.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		05BF4E0DD7BA92736426CA23 /* BackgroundKeepAlive.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackgroundKeepAlive.swift; sourceTree = "<group>"; };
+		0A6637D5D3DD3203EDD74878 /* BackupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackupView.swift; sourceTree = "<group>"; };
+		0FE75F5961B517539ABE3018 /* BackupRunner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackupRunner.swift; sourceTree = "<group>"; };
+		1120E8D105C9D07F53DC2C90 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		1528AB45493503E20DAFE53E /* SilodWire.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SilodWire.swift; sourceTree = "<group>"; };
+		18C0F1C6EB5A012C1EB274FF /* BackupController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackupController.swift; sourceTree = "<group>"; };
+		19ECDC5C7DF31E93D7CD389A /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		1B1512F67DAA75D4EDF7C85D /* Silo.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Silo.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		22D58C7CDB30E882D13A721C /* IDevice.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = IDevice.xcframework; path = ../vendor/idevice/swift/IDevice.xcframework; sourceTree = "<group>"; };
+		2F8D065B1F5FEB5DE9789A4B /* BackupPasswordVerifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackupPasswordVerifier.swift; sourceTree = "<group>"; };
+		3B1BF0E85A26F3921E4FC935 /* AboutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutView.swift; sourceTree = "<group>"; };
+		581AF1A76F2371AD13E42FBA /* BackupDestination.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackupDestination.swift; sourceTree = "<group>"; };
+		5997F4E44AA96EAB5F84ED7F /* DestinationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DestinationView.swift; sourceTree = "<group>"; };
+		7944FD049AD6A4758084E72F /* SilodClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SilodClient.swift; sourceTree = "<group>"; };
+		97EF122E27802C600141B113 /* DebugLog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugLog.swift; sourceTree = "<group>"; };
+		9CEC046CC75CD014A770B6F8 /* DeviceTunnel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceTunnel.swift; sourceTree = "<group>"; };
+		A92C2DF9EC7F4D7BD4C223D0 /* SilodHealthCheck.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SilodHealthCheck.swift; sourceTree = "<group>"; };
+		B20FB9C7E4B2A0D5F5EA46AC /* DestinationStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DestinationStore.swift; sourceTree = "<group>"; };
+		B39E01D07FEBA514DB3B06EC /* SyncLock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncLock.swift; sourceTree = "<group>"; };
+		CC76A20A1AFCACD9A49A3F59 /* KeychainStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainStore.swift; sourceTree = "<group>"; };
+		D384C39A7434BF1A1A66B2A4 /* SiloApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SiloApp.swift; sourceTree = "<group>"; };
+		D712DEA7EAEE9B062FB2083D /* BackupDelegateBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackupDelegateBridge.swift; sourceTree = "<group>"; };
+		D85B6A240C735FA81F2C665F /* TunnelDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelDetector.swift; sourceTree = "<group>"; };
+		DBDBD56C79344F420D4064E0 /* BackupEncryptionStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackupEncryptionStore.swift; sourceTree = "<group>"; };
+		E26690AEE66974BC0AFA63CA /* StatusView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusView.swift; sourceTree = "<group>"; };
+		EE976724EF16180B79989E7B /* PairingFileStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PairingFileStore.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		10E0C005E13ECB5D47FB4C5C /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D9FC96653EA51877C27397C2 /* IDevice.xcframework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		775988707F4E9F4E7477237D /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				05BF4E0DD7BA92736426CA23 /* BackgroundKeepAlive.swift */,
+				18C0F1C6EB5A012C1EB274FF /* BackupController.swift */,
+				D712DEA7EAEE9B062FB2083D /* BackupDelegateBridge.swift */,
+				DBDBD56C79344F420D4064E0 /* BackupEncryptionStore.swift */,
+				2F8D065B1F5FEB5DE9789A4B /* BackupPasswordVerifier.swift */,
+				0FE75F5961B517539ABE3018 /* BackupRunner.swift */,
+				97EF122E27802C600141B113 /* DebugLog.swift */,
+				B20FB9C7E4B2A0D5F5EA46AC /* DestinationStore.swift */,
+				9CEC046CC75CD014A770B6F8 /* DeviceTunnel.swift */,
+				CC76A20A1AFCACD9A49A3F59 /* KeychainStore.swift */,
+				EE976724EF16180B79989E7B /* PairingFileStore.swift */,
+				7944FD049AD6A4758084E72F /* SilodClient.swift */,
+				A92C2DF9EC7F4D7BD4C223D0 /* SilodHealthCheck.swift */,
+				1528AB45493503E20DAFE53E /* SilodWire.swift */,
+				B39E01D07FEBA514DB3B06EC /* SyncLock.swift */,
+				D85B6A240C735FA81F2C665F /* TunnelDetector.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		7F10843B0D6EDB1AB42E00B8 /* Silo */ = {
+			isa = PBXGroup;
+			children = (
+				19ECDC5C7DF31E93D7CD389A /* Assets.xcassets */,
+				1120E8D105C9D07F53DC2C90 /* ContentView.swift */,
+				D384C39A7434BF1A1A66B2A4 /* SiloApp.swift */,
+				801EC8DCF1E32B8B953CFA08 /* Models */,
+				775988707F4E9F4E7477237D /* Services */,
+				CB52B48DB0EF66AD3CA0540D /* Views */,
+			);
+			path = Silo;
+			sourceTree = "<group>";
+		};
+		801EC8DCF1E32B8B953CFA08 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				581AF1A76F2371AD13E42FBA /* BackupDestination.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		A09F85F0D2736526B7112058 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				22D58C7CDB30E882D13A721C /* IDevice.xcframework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		A79415C89429CF3851599EDB /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				1B1512F67DAA75D4EDF7C85D /* Silo.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		CB52B48DB0EF66AD3CA0540D /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				3B1BF0E85A26F3921E4FC935 /* AboutView.swift */,
+				0A6637D5D3DD3203EDD74878 /* BackupView.swift */,
+				5997F4E44AA96EAB5F84ED7F /* DestinationView.swift */,
+				E26690AEE66974BC0AFA63CA /* StatusView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		F11D9B1DAA6773DC94727CC4 = {
+			isa = PBXGroup;
+			children = (
+				7F10843B0D6EDB1AB42E00B8 /* Silo */,
+				A09F85F0D2736526B7112058 /* Frameworks */,
+				A79415C89429CF3851599EDB /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		7BC178D58E8D6783285EF3A3 /* Silo */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 37E459A42D17805089D57C9A /* Build configuration list for PBXNativeTarget "Silo" */;
+			buildPhases = (
+				AF7B51A79B98202849DB286B /* Sources */,
+				31213F82588BB2B80EDB444C /* Resources */,
+				10E0C005E13ECB5D47FB4C5C /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Silo;
+			packageProductDependencies = (
+			);
+			productName = Silo;
+			productReference = 1B1512F67DAA75D4EDF7C85D /* Silo.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		C57823BBA25E86B244A8BBD8 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+					7BC178D58E8D6783285EF3A3 = {
+						DevelopmentTeam = "";
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = EE3C6A5B3BB89EF0FA834AA3 /* Build configuration list for PBXProject "Silo" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = F11D9B1DAA6773DC94727CC4;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				7BC178D58E8D6783285EF3A3 /* Silo */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		31213F82588BB2B80EDB444C /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A5866162D31D3612912C205E /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		AF7B51A79B98202849DB286B /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B1249E0FDE47F961FF26B281 /* AboutView.swift in Sources */,
+				697D546DE191DD2EE61874B0 /* BackgroundKeepAlive.swift in Sources */,
+				5F5DB5EF90151B2A43D068A7 /* BackupController.swift in Sources */,
+				12FC1DE94FC7D9B535A18F0F /* BackupDelegateBridge.swift in Sources */,
+				FBDA26D85E3D93CD00358B7F /* BackupDestination.swift in Sources */,
+				793A6C9F67B8BB5BFF96B7F7 /* BackupEncryptionStore.swift in Sources */,
+				EA6F1E7B9D84AFDFF16F88D6 /* BackupPasswordVerifier.swift in Sources */,
+				13F9CEFBDACD31C53F8AAD87 /* BackupRunner.swift in Sources */,
+				E2A1384DCF82CB1CAE0B18F0 /* BackupView.swift in Sources */,
+				E0CD5AC218DAF793D5664D28 /* ContentView.swift in Sources */,
+				7CC5214B566BC8FBAF7FCDBF /* DebugLog.swift in Sources */,
+				F0F26BE66834FADE5753C5E4 /* DestinationStore.swift in Sources */,
+				1937FCF576D63ACA440E1B9B /* DestinationView.swift in Sources */,
+				0B5DB996AFC03CF21611FAD9 /* DeviceTunnel.swift in Sources */,
+				B89DC2E1880C844EF8354140 /* KeychainStore.swift in Sources */,
+				DE081549B2596EA6B7AAC138 /* PairingFileStore.swift in Sources */,
+				EDE8B2523D75FF122173F874 /* SiloApp.swift in Sources */,
+				9020F168C2E01DB9FCD1DD56 /* SilodClient.swift in Sources */,
+				C6DFD55DB4D2333F058E92F7 /* SilodHealthCheck.swift in Sources */,
+				8920CCA5EA80D1466F7012A2 /* SilodWire.swift in Sources */,
+				344F443CAAEB824E94072F34 /* StatusView.swift in Sources */,
+				464CCCC7A107AD484CC5FC49 /* SyncLock.swift in Sources */,
+				1271A814DF24D68C21AB0B26 /* TunnelDetector.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		0F2047297DA6CFFF5F859D40 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"../vendor/idevice/swift\"",
+				);
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = SideBack;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 0.1;
+				PRODUCT_BUNDLE_IDENTIFIER = com.ilia.silo;
+				SDKROOT = iphoneos;
+				SWIFT_OBJC_BRIDGING_HEADER = ../vendor/idevice/swift/include/idevice.h;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		794F26BF942E26E7C9373D6D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		9EDF2B9E95A3139AC6E35E8C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		AC4088459B0998A7D0BC8FCA /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"../vendor/idevice/swift\"",
+				);
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = SideBack;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 0.1;
+				PRODUCT_BUNDLE_IDENTIFIER = com.ilia.silo;
+				SDKROOT = iphoneos;
+				SWIFT_OBJC_BRIDGING_HEADER = ../vendor/idevice/swift/include/idevice.h;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		37E459A42D17805089D57C9A /* Build configuration list for PBXNativeTarget "Silo" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				0F2047297DA6CFFF5F859D40 /* Debug */,
+				AC4088459B0998A7D0BC8FCA /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		EE3C6A5B3BB89EF0FA834AA3 /* Build configuration list for PBXProject "Silo" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				9EDF2B9E95A3139AC6E35E8C /* Debug */,
+				794F26BF942E26E7C9373D6D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = C57823BBA25E86B244A8BBD8 /* Project object */;
+}

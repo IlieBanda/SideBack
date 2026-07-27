@@ -1,0 +1,124 @@
+diff -ru /Users/iliabanda/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/jktcp-0.1.6/src/adapter.rs /Users/iliabanda/Desktop/AltStore/TimeToLoad/vendor/jktcp-patched/src/adapter.rs
+--- /Users/iliabanda/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/jktcp-0.1.6/src/adapter.rs	2006-07-24 05:21:28
++++ /Users/iliabanda/Desktop/AltStore/TimeToLoad/vendor/jktcp-patched/src/adapter.rs	2026-07-27 21:39:47
+@@ -44,7 +44,39 @@
+ /// Initial retransmission timeout in milliseconds. Doubles on each retry.
+ const INITIAL_RTO_MS: u64 = 200;
+ 
+-const OUR_WSCALE: u8 = 8;
++// Silo patch: was a hardcoded 8 (advertises window = 65534 << 8 ≈ 16.7 MB,
++// always, via the fixed `u16::MAX - 1` window field below — never actually
++// reflecting how much we can buffer). A lost segment is dropped with no
++// SACK, so *everything* the peer already had in flight above that gap is
++// discarded too. With a ~16.7 MB always-open window the peer can have that
++// much in flight before noticing anything is wrong — one lost packet then
++// means megabytes of retransmission and a multi-minute silent stall waiting
++// on the peer's own RTO, which is exactly what was observed in practice.
++//
++// The right number here is a function of the tunnel's actual RTT (window /
++// RTT = throughput ceiling), which was never measured, not assumed — hence
++// the `rtt=` log line added alongside this. Default of 2 is a deliberately
++// conservative starting point that bounds the blast radius of a single
++// loss; override with `SILO_JKTCP_WSCALE_BITS` (0-14, the raw TCP Window
++// Scale exponent — advertised window is `65534 << bits` bytes, so 2 ≈
++// 256 KB, 8 ≈ 16.7 MB) once real RTT numbers are in hand and a bigger
++// window is known to still be safe. Named `_BITS` on purpose: an earlier
++// version of this constant was called `WSCALE` alone, which reads as "the
++// window size" when it's actually the scale *exponent* — an easy mixup to
++// carry into a future bug.
++//
++// `std::env::var` alone is a dead knob on iOS: there is no shell to export
++// into, and Xcode scheme env vars only apply under Xcode's own launch, not
++// a real install. The Swift side calls `setenv` from a UserDefaults-backed
++// UI setting before the tunnel is created specifically so this reads as
++// something other than a debug-only constant in disguise.
++fn our_wscale() -> u8 {
++    std::env::var("SILO_JKTCP_WSCALE_BITS")
++        .ok()
++        .and_then(|v| v.parse::<u8>().ok())
++        .filter(|v| *v <= 14)
++        .unwrap_or(2)
++}
+ 
+ /// Default cap on bytes in flight per connection, in bytes. Overridden via
+ /// [`Adapter::set_send_window`].
+@@ -672,6 +704,16 @@
+                         let popped = state.unacked.pop_front().unwrap();
+                         state.bytes_in_flight =
+                             state.bytes_in_flight.saturating_sub(popped.data.len());
++                        // Silo patch: real RTT sample, not a guess. Only
++                        // trustworthy for segments acked on their first
++                        // send (a retransmitted segment's ack can't be told
++                        // apart from an ack of the original), which is the
++                        // common case and enough to tell whether the window
++                        // math elsewhere is using a realistic RTT.
++                        if popped.retries == 0 {
++                            let rtt = popped.sent_at.elapsed();
++                            debug!("rtt={rtt:?} hp={}", res.destination_port);
++                        }
+                     } else {
+                         break;
+                     }
+@@ -739,11 +781,23 @@
+                             );
+                             ack_me = Some(res.destination_port);
+                         } else {
+-                            // Out-of-order: drop silently.
++                            // Out-of-order: drop the payload (no SACK/reorder
++                            // buffer to place it in), but Silo patch: still
++                            // re-ACK the last good cumulative position. A
++                            // silent drop with no ACK at all gives the peer's
++                            // TCP stack zero signal that anything arrived
++                            // out of order, so it has nothing but its own
++                            // blind RTO to fall back on for the one segment
++                            // that actually got lost. A re-ACK matches
++                            // standard TCP receiver behavior and lets a
++                            // peer that implements duplicate-ACK-triggered
++                            // fast retransmit recover in roughly one RTT
++                            // instead of a full RTO.
+                             debug!(
+                                 "out-of-order seq={} expected={} hp={}",
+                                 res.sequence_number, state.ack, res.destination_port
+                             );
++                            ack_me = Some(res.destination_port);
+                         }
+                     }
+ 
+@@ -783,7 +837,7 @@
+             ));
+         };
+         // Advertise window scaling so the peer can scale its window field.
+-        let wscale = crate::packets::window_scale_option(OUR_WSCALE);
++        let wscale = crate::packets::window_scale_option(our_wscale());
+         let tcp = TcpPacket::create(
+             self.host_ip,
+             self.peer_ip,
+@@ -1380,7 +1434,7 @@
+         assert!(syn.flags.syn, "first packet must be SYN");
+         let shift =
+             crate::packets::parse_window_scale(&syn.options).expect("SYN should include WSopt");
+-        assert_eq!(shift, OUR_WSCALE, "advertised wscale should match constant");
++        assert_eq!(shift, our_wscale(), "advertised wscale should match our_wscale()");
+     }
+ 
+     /// When the peer's SYN-ACK includes a window scale, subsequent window
+@@ -1496,11 +1550,14 @@
+             "out-of-order data must not be buffered"
+         );
+ 
+-        // No ACK should have been written to the transport.
+-        let no_ack = tokio::time::timeout(Duration::from_millis(10), read_pkt(&mut test_rx)).await;
+-        assert!(
+-            no_ack.is_err(),
+-            "out-of-order packet must not trigger an ACK"
++        // Silo patch: a re-ACK of the last good cumulative position IS sent,
++        // so the peer gets a signal something is missing instead of silence.
++        let ack = read_pkt(&mut test_rx).await;
++        assert!(ack.flags.ack, "out-of-order packet should trigger a re-ACK");
++        assert_eq!(
++            ack.acknowledgment_number,
++            PEER_ISN + 1,
++            "re-ACK must point at the last good cumulative position, not the gap"
+         );
+     }
+ 
