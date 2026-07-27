@@ -1,6 +1,6 @@
 # Security policy
 
-Silo moves a full, potentially unencrypted copy of your phone's data to a
+SideBack moves a full, potentially unencrypted copy of your phone's data to a
 server you control, and separately manages a backup-encryption password
 whose loss makes that data permanently unreadable. Both the transport
 (`silod`'s TLS) and the password handling are exactly the kind of thing
@@ -31,7 +31,7 @@ credited (with permission) once a fix ships.
 
 ## Scope
 
-In scope: `Silo/` (the iOS app), `silod/` (the server), and Silo's own
+In scope: `SideBack/` (the iOS app), `silod/` (the server), and SideBack's own
 modifications to `vendor/idevice` and `vendor/jktcp-patched` (see
 `THIRD_PARTY_NOTICES.md`). Bugs in the unmodified portions of those
 vendored dependencies should go to their own upstream repositories instead.

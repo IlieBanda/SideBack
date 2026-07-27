@@ -1,6 +1,6 @@
 # Third-party notices
 
-Silo (this repository, `Silo/` and `silod/`) is licensed under the GPLv3 —
+SideBack (this repository, `SideBack/` and `silod/`) is licensed under the GPLv3 —
 see `LICENSE`. It vendors two MIT-licensed dependencies with local
 modifications:
 
@@ -23,4 +23,4 @@ diffed in `PATCHES/jktcp.patch`.
 All other Rust dependencies (see `Cargo.lock` in `vendor/idevice/` and
 `silod/`) are MIT, Apache-2.0, BSD, ISC, or similarly permissive, used
 unmodified. `cbindgen` (MPL-2.0) is a build-time tool that generates
-`idevice.h` from Rust source; it is not itself distributed as part of Silo.
+`idevice.h` from Rust source; it is not itself distributed as part of SideBack.

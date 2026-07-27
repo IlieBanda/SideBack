@@ -1,7 +1,7 @@
-# Silo
+# SideBack
 
 A self-hosted, on-device full backup of your iPhone to your own server — no
-Mac, no iCloud, no third-party cloud. Silo runs on the phone itself and
+Mac, no iCloud, no third-party cloud. SideBack runs on the phone itself and
 streams a real `mobilebackup2` backup — the same protocol Finder uses — to
 `silod`, a small server you run wherever you want.
 
@@ -12,7 +12,7 @@ streams a real `mobilebackup2` backup — the same protocol Finder uses — to
 
 This project is two days old (see the commit history). The backup path has been debugged
 extensively against real hardware; nothing about restore has been verified
-at all. Treat every backup Silo makes right now as unverified until it has
+at all. Treat every backup SideBack makes right now as unverified until it has
 been read back by `idevicebackup2 info` (see below) and, eventually,
 actually restored to a spare device.
 
@@ -35,7 +35,7 @@ actually restored to a spare device.
 - **Byte-level resume of a partial file.** `mobilebackup2` doesn't support
   it; only whole-file resume is possible.
 - **An exact backup size estimate before starting.** The protocol doesn't
-  expose one; Silo shows the device's used-storage as an upper bound
+  expose one; SideBack shows the device's used-storage as an upper bound
   instead.
 
 ## Requirements
@@ -43,14 +43,14 @@ actually restored to a spare device.
 - An unlocked iPhone with the screen on (or the background-keepalive
   toggle, which trades battery for tolerating the screen turning off).
 - A running `LocalDevVPN`/`StosVPN`-style loopback tunnel already installed
-  (Silo doesn't ship its own).
+  (SideBack doesn't ship its own).
 - A `silod` server reachable from the phone.
 - Tested on iOS 27 betas. Untested on anything else — file an issue if you
   try.
 
 ## About the backup password
 
-Silo turns on backup encryption by default and requires you to prove you
+SideBack turns on backup encryption by default and requires you to prove you
 know the resulting password with a real round-trip to the device before a
 backup ever starts — not just save-and-hope. Three things to understand
 before you touch this:
@@ -58,7 +58,7 @@ before you touch this:
 1. **The password lives in this app's Keychain, on the phone you're
    backing up.** If the phone is lost, destroyed, or wiped before you've
    copied the password elsewhere, every encrypted backup made with it is
-   permanently unreadable. Silo shows you the password in cleartext once,
+   permanently unreadable. SideBack shows you the password in cleartext once,
    with a forced retype, when you first set it — write it down somewhere
    that isn't this phone.
 2. **This is a device setting, not a per-app one.** The same password
@@ -110,7 +110,7 @@ target also builds simulator/macOS/Catalyst slices if you need them).
   the loopback tunnel trick this project reuses wholesale.
 - [ByeTunes](https://github.com/EduAlexxis/ByeTunes) — an independent app on
   the same `idevice` stack, used as an architecture/interface reference and
-  as evidence for simplifying Silo's iTunes-sync-lock handling down to
+  as evidence for simplifying SideBack's iTunes-sync-lock handling down to
   notifications only.
 
 ## License
