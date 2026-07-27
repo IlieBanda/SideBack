@@ -18,6 +18,7 @@ use tokio::net::TcpListener;
 use tokio_rustls::TlsAcceptor;
 use tracing::{error, info, warn};
 
+use silod::ratelimit::RateLimiter;
 use silod::session::Session;
 
 #[derive(Parser, Debug)]
@@ -78,6 +79,8 @@ async fn main() -> Result<()> {
 
     info!(root = ?root, listen = %args.listen, "silod ready");
 
+    let limiter = Arc::new(RateLimiter::new());
+
     loop {
         let (stream, peer) = match listener.accept().await {
             Ok(accepted) => accepted,
@@ -87,12 +90,23 @@ async fn main() -> Result<()> {
             }
         };
 
+        // Checked before the TLS handshake: a closed socket after one bad
+        // token only stops brute-forcing *that* connection, not a peer
+        // that opens a fresh one per guess. Cheaper to drop here too —
+        // no point doing a TLS handshake for a peer we're about to refuse.
+        if limiter.is_blocked(peer.ip()) {
+            warn!(%peer, "dropping connection: too many recent failed auth attempts from this IP");
+            continue;
+        }
+
         let acceptor = acceptor.clone();
         let root = root.clone();
         let token = token.clone();
+        let limiter = limiter.clone();
 
         // One task per connection; a misbehaving peer cannot stall others.
         tokio::spawn(async move {
+            let peer_ip = peer.ip();
             let peer = peer.to_string();
             let mut stream = match acceptor.accept(stream).await {
                 Ok(stream) => stream,
@@ -103,8 +117,15 @@ async fn main() -> Result<()> {
             };
 
             let session = Session::new(root, token);
-            if let Err(error) = session.run(&mut stream, &peer).await {
-                warn!(%peer, %error, "session ended with an error");
+            match session.run(&mut stream, &peer).await {
+                Ok(authenticated) => {
+                    if !authenticated {
+                        limiter.record_failure(peer_ip);
+                    }
+                }
+                Err(error) => {
+                    warn!(%peer, %error, "session ended with an error");
+                }
             }
         });
     }

@@ -22,7 +22,11 @@ impl Session {
         Self { storage: Storage::new(root), token, authenticated: false }
     }
 
-    pub async fn run<S>(mut self, stream: &mut S, peer: &str) -> Result<(), ProtocolError>
+    /// Returns whether the peer ever authenticated during this connection —
+    /// callers use this to rate-limit IPs that keep failing the handshake
+    /// (closing the socket after one bad token stops brute-forcing *one*
+    /// connection, but not a peer that just opens a new one for each guess).
+    pub async fn run<S>(mut self, stream: &mut S, peer: &str) -> Result<bool, ProtocolError>
     where
         S: AsyncRead + AsyncWrite + Unpin,
     {
@@ -33,7 +37,7 @@ impl Session {
                     if error.kind() == std::io::ErrorKind::UnexpectedEof =>
                 {
                     debug!(%peer, "peer closed the connection");
-                    return Ok(());
+                    return Ok(self.authenticated);
                 }
                 Err(error) => return Err(error),
             };
@@ -46,7 +50,7 @@ impl Session {
             // unlimited token guesses on one socket.
             if fatal {
                 warn!(%peer, "closing connection after failed handshake");
-                return Ok(());
+                return Ok(self.authenticated);
             }
         }
     }
