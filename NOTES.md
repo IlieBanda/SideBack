@@ -1,8 +1,9 @@
 # TimeToLoad (TTL) — original draft
 
-> Historical planning note from before the project had a working backup
-> path. Kept for context, not maintained — see `README.md` for current
-> status. The phase list below stops matching reality after Phase 1;
+> **Internal notes, not documentation.** A historical planning note from
+> before the project had a working backup path — kept for context, not
+> maintained, and not meant to be read as current status. See `README.md`
+> for that. The phase list below stops matching reality after Phase 1;
 > everything past that (network `BackupDelegate`, `silod`, encryption,
 > resume) has since been built and looks different from what's sketched
 > here.
