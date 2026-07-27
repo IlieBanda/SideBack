@@ -45,7 +45,7 @@ actually restored to a spare device.
 - A running `LocalDevVPN`/`StosVPN`-style loopback tunnel already installed
   (Silo doesn't ship its own).
 - A `silod` server reachable from the phone.
-- Tested on iOS 26 betas. Untested on anything else — file an issue if you
+- Tested on iOS 27 betas. Untested on anything else — file an issue if you
   try.
 
 ## About the backup password
